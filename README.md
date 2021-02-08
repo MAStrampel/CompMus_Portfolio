@@ -1,9 +1,5 @@
-## 12066664_CompMus
+## 12066664 Computational Musicology Portfolio
 
-#### What is your corpus, why did you choose it, and what do you think is interesting about it?
-
-#### What are the natural groups or comparison points in your corpus (e.g., albums, artists, genres, people)? What do you expect to be different among these groups, what do you expect to be the same, and what are you unsure about?
-
-#### How representative are the tracks in your corpus for the groups you want to compare? For example, is there a well-known difference between the live and studio versions of one of the artists, or is Spotify missing an important recording? Or if you are using a personal playlist of yourself or someone else, what percentage of your or their music listening takes place on Spotify? If your corpus is genre-based, how well do you think it covers the genre you are interested in, and what do you think are the most important gaps? There is no such thing as a perfect corpus, and it is important to think from the beginning about its strengths and limitations.
-
-#### Identify several tracks in your corpus that are either extremely typical or atypical. Why do you think that they are so typical or so strange? Several pages of your final portfolio will be dedicated to detailed analyses of specific tracks, and so it is important to think about which ones might be most interesting.
+I've chosen to use the fifteen studio albums by Pink Floyd (see list below) for a few reasons. First off, I really like (most of) their music and I listen to it often. Furthermore, I would like to analyse the differences in style between albums and how that may or may not have changed over time. It could also be interesting to try to find out which properties made some albums more popular than others. I think only using the studio albums suits these ends better than also using the live or collection albums, as the latter bring different versions of songs already on the studio albums and introduce stylistic differences from non-band members playing in the live performances.
+<br>
+Some albums that contain very atypical songs are albums such as ummagumma early on, which was.. 'experimental', as well as the stylistic shift that happened right around Animals and The Wall, where Waters started pulling in a different direction from Gilmour. The specific songs that might be typical or atypical will need to be looked at further.
