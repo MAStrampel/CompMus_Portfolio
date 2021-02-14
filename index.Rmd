@@ -41,3 +41,24 @@ summary(cars)
 ```{r pressure, echo=FALSE}
 plot(pressure)
 ```
+
+```{r }
+#wish <- get_album_tracks("6uvBKDGlJAYLH5Vy6RQVsc") 
+uma <- get_playlist_audio_features("", "4uuyGVEZpYaGB1HtewAogW")
+wish <- get_playlist_audio_features("", "6uvBKDGlJAYLH5Vy6RQVsc")
+
+albums <-
+  bind_rows(
+    uma %>% mutate(category = "Ummagumma"),
+    wish %>% mutate(category = "Wish You Were Here")
+  )
+
+albums %>%
+  ggplot(aes(x = energy)) +
+  geom_histogram(binwidth = 0.1) +
+  facet_wrap(~category)
+    
+```
+
+
+
