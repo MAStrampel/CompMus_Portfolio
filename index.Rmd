@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(spotifyr)
+library(ggplot2)
+library(dplyr)
 ```
 
 ## 12066664 Computational Musicology Portfolio
@@ -18,6 +20,7 @@ I've chosen to use the fifteen studio albums by Pink Floyd (see list below) for 
 Some albums that contain very atypical songs are albums such as ummagumma early on, which was.. 'experimental', as well as the stylistic shift that happened right around Animals and The Wall, where Waters started pulling in a different direction from Gilmour. The specific songs that might be typical or atypical will need to be looked at further.
 
 List of albums (oldest to newest):
+
 1. The Piper at the Gates of Dawn (1967)
 2. A Saucerful of Secrets (1968)
 3. More (1969)
@@ -47,22 +50,35 @@ plot(pressure)
 ```{r}
 corpus_feat <- get_playlist_audio_features("", "1C9XFTKsUqn6U3ZsF8KL4A")
 
-corpus_feat %>%
-  summarise(
-    
-    mean_speechiness = mean(speechiness),
-    mean_acousticness = mean(acousticness),
-    mean_liveness = mean(liveness),
-    sd_speechiness = sd(speechiness),
-    sd_acousticness = sd(acousticness),
-    sd_liveness = sd(liveness),
-    median_speechiness = median(speechiness),
-    median_acousticness = median(acousticness),
-    median_liveness = median(liveness),
-    mad_speechiness = mad(speechiness),
-    mad_acousticness = mad(acousticness),
-    mad_liveness = mad(liveness)
+valence_means <- aggregate(corpus_feat[15], list(corpus_feat$track.album.release_date), mean)
+#valence_means
+
+energy_means <- aggregate(corpus_feat[7], list(corpus_feat$track.album.release_date), mean)
+#energy_means
+
+v_e_means <- merge(valence_means, energy_means)
+v_e_means
+
+ggplot() +
+  geom_point(data=corpus_feat, aes(x=track.album.release_date, y=valence, size=energy, alpha=0.5)) + 
+  geom_point(data=v_e_means, aes(x=Group.1, y=valence, size=energy, color='red')) +
+  geom_line(data=v_e_means, aes(x=Group.1, y=valence, color='red', group=1)) +
+  scale_x_discrete() +
+  theme(
+    axis.text.x = element_text(angle=30, hjust="1")
+  ) +
+  labs(
+    title = "Valence and Energy for Songs on Studio Albums by Pink Floyd",
+    x = "Album Release Date",
+    y = "Valence"
+  ) +
+  guides(
+    alpha = FALSE,
+    fill = FALSE,
+    color = FALSE
   )
+
+corpus_feat
     
 ```
 
