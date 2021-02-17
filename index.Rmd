@@ -88,7 +88,7 @@ ggplotly(floyd)
 As a first step in the analysis of the change in style in Pink Floyd's albums I've decided to look at the valence and energy levels in Pink Floyd's songs. Valence describes *musical positiveness* in a track. I have posited that energy levels are also, albeit in a lesser amount, related to *musical positiveness*; positive tracks tend to be more upbeat and louder than sad, slow and quiet songs. To this end I have plotted the valence of songs per album (Figure 1.). Additionally, the energy levels for each song is represented in the size of its point. Lastly, I have plotted the mean valence of all songs on an album, whose size represents the mean energy level of songs on that album. The means are connected to show the trend over time. Although the change over time is small, there does seem to be a small trend toward lower valence, from about $0.38$ to $0.20$. This is most clearly reflected in the album from $1967$ and those from $1971$ to $2014$.
 Contrary to my prediction, energy does not seem to neccesarily be connected to valence: not all big points are at the top, they are evenly distributed.
 
-### Week 3: Chromagrams
+### Week 3a: Chromagrams
 
 ```{r, echo=FALSE}
 wood <-
@@ -113,6 +113,45 @@ wood %>%
   theme_minimal() +
   scale_fill_viridis_c() 
   #+ xlim(0, 30) # Set from-to (in seconds) positions in the song.
+```
+
+### Week 3b: Dynamic Time Warping (DTW)
+
+```{r, echo=FALSE}
+## The Tallis Scholars
+tallis <-
+  get_tidy_audio_analysis("2J3Mmybwue0jyQ0UVMYurH") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+## La Chapelle Royale
+chapelle <-
+  get_tidy_audio_analysis("4ccw2IcnFt1Jv9LqQCOYDi") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+
+# Best combinations: norm=manhattan, method=aitchison & norm=euclidean, method=angular
+compmus_long_distance(
+  tallis %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")),
+  chapelle %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")),
+  feature = pitches,
+  method = "angular"
+) %>%
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_equal() +
+  labs(x = "The Tallis Scholars", y = "La Chapelle Royale") +
+  theme_minimal() +
+  scale_fill_viridis_c(guide = NULL)
 ```
 
 
