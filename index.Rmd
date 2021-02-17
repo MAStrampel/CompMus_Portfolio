@@ -2,7 +2,10 @@
 title: "index"
 author: "Marius Strampel"
 date: "15/02/2021"
-output: html_document
+output: 
+  flexdashboard::flex_dashboard:
+    storyboard: true
+    #theme: plotly
 ---
 
 ```{r setup, include=FALSE}
@@ -18,7 +21,7 @@ library(plotly)
 ## 12066664 Computational Musicology Portfolio
 
 
-#### Week 1: Corpus choice
+### Week 1: Corpus choice
 I've chosen to use the fifteen studio albums by Pink Floyd (see list below) for a few reasons. First off, I really like (most of) their music and I listen to it often. Furthermore, I would like to analyse the differences in style between albums and how that may or may not have changed over time. It could also be interesting to try to find out which properties made some albums more popular than others. I think only using the studio albums suits these ends better than also using the live or collection albums, as the latter bring different versions of songs already on the studio albums and introduce stylistic differences from non-band members playing in the live performances.
 <br>
 Some albums that contain very atypical songs are albums such as ummagumma early on, which was.. 'experimental', as well as the stylistic shift that happened right around Animals and The Wall, where Waters started pulling in a different direction from Gilmour. The specific songs that might be typical or atypical will need to be looked at further.
@@ -41,11 +44,7 @@ List of albums (oldest to newest):
 14. The Division Bell (1994)
 15. The Endless River (2014)
 
-
-#### Week 2: First analysis
-
-As a first step in the analysis of the change in style in Pink Floyd's albums I've decided to look at the valence and energy levels in Pink Floyd's songs. Valence describes *musical positiveness* in a track. I have posited that energy levels are also, albeit in a lesser amount, related to *musical positiveness*; positive tracks tend to be more upbeat and louder than sad, slow and quiet songs. To this end I have plotted the valence of songs per album (Figure 1.). Additionally, the energy levels for each song is represented in the size of its point. Lastly, I have plotted the mean valence of all songs on an album, whose size represents the mean energy level of songs on that album. The means are connected to show the trend over time. Although the change over time is small, there does seem to be a small trend toward lower valence, from about $0.38$ to $0.20$. This is most clearly reflected in the album from $1967$ and those from $1971$ to $2014$.
-Contrary to my prediction, energy does not seem to neccesarily be connected to valence: not all big points are at the top, they are evenly distributed.
+### Week 2: First analysis
 
 ```{r, echo=FALSE}
 corpus_feat <- get_playlist_audio_features("", "1C9XFTKsUqn6U3ZsF8KL4A")
@@ -59,7 +58,7 @@ energy_means <- aggregate(corpus_feat[7], list(corpus_feat$track.album.release_d
 v_e_means <- merge(valence_means, energy_means)
 # v_e_means
 
-ggplot() +
+floyd <- ggplot() +
   geom_point(data=corpus_feat, aes(x=track.album.release_date, y=valence, size=energy, alpha=0.5)) + 
   geom_point(data=v_e_means, aes(x=Group.1, y=valence, size=energy, color='red')) +
   geom_line(data=v_e_means, aes(x=Group.1, y=valence, color='red', group=1)) +
@@ -79,16 +78,21 @@ ggplot() +
   )
 
 # corpus_feat
+
+ggplotly(floyd)
     
 ```
+<!-- ###### Figure 1. Valence and Energy in Pink Floyd songs over time. -->
 
-###### Figure 1. Valence and Energy in Pink Floyd songs over time.
+***
+As a first step in the analysis of the change in style in Pink Floyd's albums I've decided to look at the valence and energy levels in Pink Floyd's songs. Valence describes *musical positiveness* in a track. I have posited that energy levels are also, albeit in a lesser amount, related to *musical positiveness*; positive tracks tend to be more upbeat and louder than sad, slow and quiet songs. To this end I have plotted the valence of songs per album (Figure 1.). Additionally, the energy levels for each song is represented in the size of its point. Lastly, I have plotted the mean valence of all songs on an album, whose size represents the mean energy level of songs on that album. The means are connected to show the trend over time. Although the change over time is small, there does seem to be a small trend toward lower valence, from about $0.38$ to $0.20$. This is most clearly reflected in the album from $1967$ and those from $1971$ to $2014$.
+Contrary to my prediction, energy does not seem to neccesarily be connected to valence: not all big points are at the top, they are evenly distributed.
 
-#### Week 3: Chromagrams
+### Week 3: Chromagrams
 
 ```{r, echo=FALSE}
 wood <-
-  get_tidy_audio_analysis("6IQILcYkN2S2eSu5IHoPEH") %>%
+  get_tidy_audio_analysis("3z8h0TU7ReDPLIbEnYhWZb") %>%
   select(segments) %>%
   unnest(segments) %>%
   select(start, duration, pitches)
@@ -107,7 +111,8 @@ wood %>%
   geom_tile() +
   labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
   theme_minimal() +
-  scale_fill_viridis_c()
+  scale_fill_viridis_c() 
+  #+ xlim(0, 30) # Set from-to (in seconds) positions in the song.
 ```
 
 
