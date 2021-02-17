@@ -84,6 +84,8 @@ ggplot() +
 
 ###### Figure 1. Valence and Energy in Pink Floyd songs over time.
 
+#### Week 3: Chromagrams
+
 ```{r, echo=FALSE}
 wood <-
   get_tidy_audio_analysis("6IQILcYkN2S2eSu5IHoPEH") %>%
