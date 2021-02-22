@@ -1,11 +1,11 @@
 ---
 title: "index"
 author: "Marius Strampel"
-date: "15/02/2021"
+date: "22/02/2021"
 output: 
   flexdashboard::flex_dashboard:
     storyboard: true
-    #theme: plotly
+    theme: yeti
 ---
 
 ```{r setup, include=FALSE}
@@ -20,13 +20,13 @@ library(plotly)
 
 ## 12066664 Computational Musicology Portfolio
 
+### On the evolution of Pink Floyd's studio works throughout time.
 
-### Week 1: Corpus choice
 I've chosen to use the fifteen studio albums by Pink Floyd (see list below) for a few reasons. First off, I really like (most of) their music and I listen to it often. Furthermore, I would like to analyse the differences in style between albums and how that may or may not have changed over time. It could also be interesting to try to find out which properties made some albums more popular than others. I think only using the studio albums suits these ends better than also using the live or collection albums, as the latter bring different versions of songs already on the studio albums and introduce stylistic differences from non-band members playing in the live performances.
 <br>
-Some albums that contain very atypical songs are albums such as ummagumma early on, which was.. 'experimental', as well as the stylistic shift that happened right around Animals and The Wall, where Waters started pulling in a different direction from Gilmour. The specific songs that might be typical or atypical will need to be looked at further.
+Some albums that contain very atypical songs are albums such as Ummagumma early on, which was.. 'experimental', as well as the stylistic shift that happened right around Animals and The Wall, where Waters started pulling in a different direction from Gilmour. Specific songs that might be typical or atypical will be looked at further.
 
-List of albums (oldest to newest):
+List of studio albums (oldest to newest):
 
 1. The Piper at the Gates of Dawn (1967)
 2. A Saucerful of Secrets (1968)
@@ -44,7 +44,8 @@ List of albums (oldest to newest):
 14. The Division Bell (1994)
 15. The Endless River (2014)
 
-### Week 2: First analysis
+<!-- TODO -->
+### The evergrowing scepticism of Pink Floyd represented in their albums becoming less and less valent.
 
 ```{r, echo=FALSE}
 corpus_feat <- get_playlist_audio_features("", "1C9XFTKsUqn6U3ZsF8KL4A")
@@ -88,18 +89,19 @@ ggplotly(floyd)
 As a first step in the analysis of the change in style in Pink Floyd's albums I've decided to look at the valence and energy levels in Pink Floyd's songs. Valence describes *musical positiveness* in a track. I have posited that energy levels are also, albeit in a lesser amount, related to *musical positiveness*; positive tracks tend to be more upbeat and louder than sad, slow and quiet songs. To this end I have plotted the valence of songs per album (Figure 1.). Additionally, the energy levels for each song is represented in the size of its point. Lastly, I have plotted the mean valence of all songs on an album, whose size represents the mean energy level of songs on that album. The means are connected to show the trend over time. Although the change over time is small, there does seem to be a small trend toward lower valence, from about $0.38$ to $0.20$. This is most clearly reflected in the album from $1967$ and those from $1971$ to $2014$.
 Contrary to my prediction, energy does not seem to neccesarily be connected to valence: not all big points are at the top, they are evenly distributed.
 
-### Week 3a: Chromagrams
+<!-- TODO -->
+### A nightmarish forest stroll with Pink Floyd: Several Species Of Small Furry Animals Gathered Together In A Cave And Grooving With A Pict.
 
 ```{r, echo=FALSE}
 wood <-
-  get_tidy_audio_analysis("3z8h0TU7ReDPLIbEnYhWZb") %>%
+  get_tidy_audio_analysis("6mKubLaKaqlt0zcuzS6WhH") %>%
   select(segments) %>%
   unnest(segments) %>%
   select(start, duration, pitches)
 
 wood %>%
   mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
-  compmus_gather_chroma() %>% 
+  compmus_gather_chroma() %>%
   ggplot(
     aes(
       x = start + duration / 2,
@@ -109,49 +111,55 @@ wood %>%
     )
   ) +
   geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  labs (
+    title = "Chromatogram of 'Several Species (...)', from Ummagumma (1969)",
+    x = "Time (s)",
+    y = NULL, 
+    fill = "Magnitude"
+  ) +
   theme_minimal() +
-  scale_fill_viridis_c() 
+  scale_fill_viridis_c()
   #+ xlim(0, 30) # Set from-to (in seconds) positions in the song.
 ```
 
-### Week 3b: Dynamic Time Warping (DTW)
+***
+Descr
 
-```{r, echo=FALSE}
-## The Tallis Scholars
-tallis <-
-  get_tidy_audio_analysis("2J3Mmybwue0jyQ0UVMYurH") %>%
-  select(segments) %>%
-  unnest(segments) %>%
-  select(start, duration, pitches)
-## La Chapelle Royale
-chapelle <-
-  get_tidy_audio_analysis("4ccw2IcnFt1Jv9LqQCOYDi") %>%
-  select(segments) %>%
-  unnest(segments) %>%
-  select(start, duration, pitches)
+<!-- ### Week 3b: Dynamic Time Warping (DTW) -->
 
-# Best combinations: norm=manhattan, method=aitchison & norm=euclidean, method=angular
-compmus_long_distance(
-  tallis %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")),
-  chapelle %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")),
-  feature = pitches,
-  method = "angular"
-) %>%
-  ggplot(
-    aes(
-      x = xstart + xduration / 2,
-      width = xduration,
-      y = ystart + yduration / 2,
-      height = yduration,
-      fill = d
-    )
-  ) +
-  geom_tile() +
-  coord_equal() +
-  labs(x = "The Tallis Scholars", y = "La Chapelle Royale") +
-  theme_minimal() +
-  scale_fill_viridis_c(guide = NULL)
-```
+<!-- ```{r, echo=FALSE} -->
+<!-- ## The Tallis Scholars -->
+<!-- tallis <- -->
+<!--   get_tidy_audio_analysis("2J3Mmybwue0jyQ0UVMYurH") %>% -->
+<!--   select(segments) %>% -->
+<!--   unnest(segments) %>% -->
+<!--   select(start, duration, pitches) -->
+<!-- ## La Chapelle Royale -->
+<!-- chapelle <- -->
+<!--   get_tidy_audio_analysis("4ccw2IcnFt1Jv9LqQCOYDi") %>% -->
+<!--   select(segments) %>% -->
+<!--   unnest(segments) %>% -->
+<!--   select(start, duration, pitches) -->
 
-
+<!-- # Best combinations: norm=manhattan, method=aitchison & norm=euclidean, method=angular -->
+<!-- compmus_long_distance( -->
+<!--   tallis %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")), -->
+<!--   chapelle %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")), -->
+<!--   feature = pitches, -->
+<!--   method = "angular" -->
+<!-- ) %>% -->
+<!--   ggplot( -->
+<!--     aes( -->
+<!--       x = xstart + xduration / 2, -->
+<!--       width = xduration, -->
+<!--       y = ystart + yduration / 2, -->
+<!--       height = yduration, -->
+<!--       fill = d -->
+<!--     ) -->
+<!--   ) + -->
+<!--   geom_tile() + -->
+<!--   coord_equal() + -->
+<!--   labs(x = "The Tallis Scholars", y = "La Chapelle Royale") + -->
+<!--   theme_minimal() + -->
+<!--   scale_fill_viridis_c(guide = NULL) -->
+<!-- ``` -->
