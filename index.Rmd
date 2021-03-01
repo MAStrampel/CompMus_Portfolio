@@ -1,7 +1,7 @@
 ---
 title: "index"
 author: "Marius Strampel"
-date: "22/02/2021"
+date: "01/03/2021"
 output: 
   flexdashboard::flex_dashboard:
     storyboard: true
@@ -16,11 +16,92 @@ library(ggplot2)
 library(dplyr)
 library(compmus)
 library(plotly)
+library(lubridate)
+library(cowplot)
 ```
 
 ## 12066664 Computational Musicology Portfolio
 
-### On the evolution of Pink Floyd's studio works throughout time.
+<!-- Week 8: Structure analysis, self-similarity matrices -->
+### **Self-similarity** in *Several Species Of Small Furry Animals Gathered Together In A Cave And Grooving With A Pict*
+<!-- TODO fix figure sizes and alignments -->
+```{r, figures-side, fig.show="hold", out.width="50%", fig.align="top", echo=FALSE}
+sevspec <-
+  get_tidy_audio_analysis("6mKubLaKaqlt0zcuzS6WhH") %>% # Change URI.
+  compmus_align(bars, segments) %>%                     # Change `bars`
+  select(bars) %>%                                      #   in all three
+  unnest(bars) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+sevspec_chroma <- sevspec %>%
+  compmus_self_similarity(pitches, "euclidean") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "", title = "Chroma-Based Self Similarity")
+
+sevspec_timbre <- sevspec %>%
+  compmus_self_similarity(timbre, "euclidean") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "", title = "Timbre-Based Self Similarity") +
+  scale_x_continuous(
+    breaks = c(26, 69, 138, 224, 272),
+    labels = c("Scurrying", "Come Back", "Singing Animals", "Pict", "Avant-Garde")
+  ) +
+  theme(
+        axis.text.x = element_text(angle=90, hjust="1")
+  )
+
+sevspec_chroma
+sevspec_timbre
+```
+
+***
+The most experimental song by Pink Floyd has to be *Several Species Of Small Furry Animals Gathered Together In A Cave And Grooving With A Pict* from their 1969 album *Ummagumma*. This track (hereby referred to as *Several Species*) is barely even classifiable as a song. It consists of a few minutes of human imitations of animal noises played at various speeds, and ends with a Pict angrily reciting a poem in an exaggerated Scottish accent. To provide some context, the Picts were the people originally from what is now Scotland. 
+
+This song is not built up of sections, such as verse, chorus and bridge, that are normally seen in pop songs and in most of Pink Floyd's songs too. As such, a couple of key moments in the song have been marked in the timbre-based self-similarity plot. The plots show that *Several Species* starts off quiet. After about 20 seconds the first animals can be heard and at 26 seconds scurrying noises start. These scurrying noises are heard throughout almost the entire song at various loudness levels. From 69 seconds a loop of "Come back" followed by a screech gets layered on top of the scurrying and other random animal noises. At 138 seconds the "Come back" and screech have faded out and 'singing' animals can be heard instead. These do not sing as consistently as the "Come back" and screech were. This is reflected in the plots: The section between Come Back and Singing Animals is mostly uniform, whereas the section between Singing Animals and Pict shows smaller uniform sections that are distinct from each other. At 224 seconds the pict starts his recital of a poem, which can be found [in this Reddit comment](https://www.reddit.com/r/pinkfloyd/comments/5nufpd/what_is_pink_floyds_weirdest_song/dcepows/). During this time, most of the animals noises are absent. Near the end of the Pict's ramblings, at 272 seconds, the phrase "That was pretty avant-garde, wasn' it?" can be heard. The track ends with a few more exclamations by the Pict, after which it fades out again.
+
+Noteworthy is the fact that the marked sections begin at the aforementioned timestamps, they start quiet and grow to full loudness over a period of a few seconds, between about 5 and 10 seconds. This is shown in the graphs, where the sections are distinctly visible, albeit a few seconds past the supplied marker.
+
+
+
+<!-- Week 5: Corpus choice -->
+### On the **evolution of Pink Floyd's** studio works throughout time.
 
 I've chosen to use the fifteen studio albums by Pink Floyd (see list below) for a few reasons. First off, I really like (most of) their music and I listen to it often. Furthermore, I would like to analyse the differences in style between albums and how that may or may not have changed over time. It could also be interesting to try to find out which properties made some albums more popular than others. I think only using the studio albums suits these ends better than also using the live or collection albums, as the latter bring different versions of songs already on the studio albums and introduce stylistic differences from non-band members playing in the live performances.
 <br>
@@ -44,11 +125,14 @@ List of studio albums (oldest to newest):
 14. The Division Bell (1994)
 15. The Endless River (2014)
 
-<!-- TODO -->
-### The evergrowing scepticism of Pink Floyd represented in their albums becoming less and less valent.
+
+
+<!-- Week 6: Fourier analysis, Data visualization -->
+### The evergrowing **scepticism** of Pink Floyd represented in their albums becoming **less and less valent**.
 
 ```{r, echo=FALSE}
 corpus_feat <- get_playlist_audio_features("", "1C9XFTKsUqn6U3ZsF8KL4A")
+# print(as_tibble(corpus_feat))
 
 valence_means <- aggregate(corpus_feat[15], list(corpus_feat$track.album.release_date), mean)
 #valence_means
@@ -60,12 +144,17 @@ v_e_means <- merge(valence_means, energy_means)
 # v_e_means
 
 floyd <- ggplot() +
-  geom_point(data=corpus_feat, aes(x=track.album.release_date, y=valence, size=energy, alpha=0.5)) + 
-  geom_point(data=v_e_means, aes(x=Group.1, y=valence, size=energy, color='red')) +
-  geom_line(data=v_e_means, aes(x=Group.1, y=valence, color='red', group=1)) +
+  geom_point(data=corpus_feat, aes(x=year(track.album.release_date), y=valence, size=energy, alpha=0.5)) +
+  geom_point(data=v_e_means, aes(x=year(Group.1), y=valence, size=energy, color='red')) +
+  geom_line(data=v_e_means, aes(x=year(Group.1), y=valence, color='red', group=1)) +
   scale_x_discrete() +
   theme(
     axis.text.x = element_text(angle=30, hjust="1")
+    # ,
+    # text = paste("Name: ", track.name, "\n",
+    #              "Album: ", track.album.name, "\n",
+    #              "Valence: ", valence, "\n",
+    #              "Energy: ", energy)
   ) +
   labs(
     title = "Valence and Energy for Songs on Studio Albums by Pink Floyd",
@@ -83,13 +172,14 @@ floyd <- ggplot() +
 ggplotly(floyd)
     
 ```
-<!-- ###### Figure 1. Valence and Energy in Pink Floyd songs over time. -->
 
 ***
 As a first step in the analysis of the change in style in Pink Floyd's albums I've decided to look at the valence and energy levels in Pink Floyd's songs. Valence describes *musical positiveness* in a track. I have posited that energy levels are also, albeit in a lesser amount, related to *musical positiveness*; positive tracks tend to be more upbeat and louder than sad, slow and quiet songs. To this end I have plotted the valence of songs per album (Figure 1.). Additionally, the energy levels for each song is represented in the size of its point. Lastly, I have plotted the mean valence of all songs on an album, whose size represents the mean energy level of songs on that album. The means are connected to show the trend over time. Although the change over time is small, there does seem to be a small trend toward lower valence, from about $0.38$ to $0.20$. This is most clearly reflected in the album from $1967$ and those from $1971$ to $2014$.
 Contrary to my prediction, energy does not seem to neccesarily be connected to valence: not all big points are at the top, they are evenly distributed.
 
-<!-- TODO -->
+
+
+<!-- Week 7: Audio features, Dynamic time warping (DTW) -->
 ### A nightmarish forest stroll with Pink Floyd: Several Species Of Small Furry Animals Gathered Together In A Cave And Grooving With A Pict.
 
 ```{r, echo=FALSE}
@@ -123,43 +213,4 @@ wood %>%
 ```
 
 ***
-Descr
-
-<!-- ### Week 3b: Dynamic Time Warping (DTW) -->
-
-<!-- ```{r, echo=FALSE} -->
-<!-- ## The Tallis Scholars -->
-<!-- tallis <- -->
-<!--   get_tidy_audio_analysis("2J3Mmybwue0jyQ0UVMYurH") %>% -->
-<!--   select(segments) %>% -->
-<!--   unnest(segments) %>% -->
-<!--   select(start, duration, pitches) -->
-<!-- ## La Chapelle Royale -->
-<!-- chapelle <- -->
-<!--   get_tidy_audio_analysis("4ccw2IcnFt1Jv9LqQCOYDi") %>% -->
-<!--   select(segments) %>% -->
-<!--   unnest(segments) %>% -->
-<!--   select(start, duration, pitches) -->
-
-<!-- # Best combinations: norm=manhattan, method=aitchison & norm=euclidean, method=angular -->
-<!-- compmus_long_distance( -->
-<!--   tallis %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")), -->
-<!--   chapelle %>% mutate(pitches = map(pitches, compmus_normalise, "euclidean")), -->
-<!--   feature = pitches, -->
-<!--   method = "angular" -->
-<!-- ) %>% -->
-<!--   ggplot( -->
-<!--     aes( -->
-<!--       x = xstart + xduration / 2, -->
-<!--       width = xduration, -->
-<!--       y = ystart + yduration / 2, -->
-<!--       height = yduration, -->
-<!--       fill = d -->
-<!--     ) -->
-<!--   ) + -->
-<!--   geom_tile() + -->
-<!--   coord_equal() + -->
-<!--   labs(x = "The Tallis Scholars", y = "La Chapelle Royale") + -->
-<!--   theme_minimal() + -->
-<!--   scale_fill_viridis_c(guide = NULL) -->
-<!-- ``` -->
+Descr TODO
