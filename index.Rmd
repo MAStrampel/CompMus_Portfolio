@@ -155,17 +155,17 @@ v_e_means <- merge(valence_means, energy_means)
 # v_e_means
 
 floyd <- ggplot() +
-  geom_point(data=corpus_feat, aes(x=year(track.album.release_date), y=valence, size=energy, alpha=0.5)) +
+  geom_point(data=corpus_feat, aes(x=year(track.album.release_date), y=valence, size=energy, alpha=0.5,
+    text = paste(" Name: ", track.name, "\n",
+                 "Album: ", track.album.name, "\n",
+                 "Valence: ", valence, "\n",
+                 "Energy: ", energy))) +
   geom_point(data=v_e_means, aes(x=year(Group.1), y=valence, size=energy, color='red')) +
   geom_line(data=v_e_means, aes(x=year(Group.1), y=valence, color='red', group=1)) +
   scale_x_discrete() +
   theme(
     axis.text.x = element_text(angle=30, hjust="1")
-    # ,
-    # text = paste("Name: ", track.name, "\n",
-    #              "Album: ", track.album.name, "\n",
-    #              "Valence: ", valence, "\n",
-    #              "Energy: ", energy)
+    
   ) +
   labs(
     title = "Valence and Energy for Songs on Studio Albums by Pink Floyd",
@@ -180,7 +180,7 @@ floyd <- ggplot() +
 
 # corpus_feat
 
-ggplotly(floyd)
+ggplotly(floyd, tooltip = 'text')
     
 ```
 
