@@ -22,6 +22,58 @@ library(cowplot)
 
 ## 12066664 Computational Musicology Portfolio
 
+<!-- Week 9: Key and chord estimation -->
+### **NEW:** Comparing **keys** used in a selection Pink Floyd's **experimental and popular albums** using standard pitch class notation.
+```{r, echo=FALSE}
+floyd_keys <-
+  get_playlist_audio_features(
+    "Pink Floyd all albums (old to new)",
+    "1C9XFTKsUqn6U3ZsF8KL4A"
+  ) %>%
+  slice(1:78) %>%  # Limit to 30 tracks
+  add_audio_analysis()
+
+umma <- filter(floyd_keys, track.album.name == "Ummagumma (2011 Remastered Version)") 
+
+dark <- filter(floyd_keys, track.album.name == "The Dark Side Of The Moon [Remastered] (Remastered Version)")
+
+ummadark <- rbind(umma, dark)
+
+# print(floyd_keys)
+# print(umma)
+# print(dark)
+# print(ummadark)
+
+ggplot(ummadark, aes(x=key, fill=track.album.name)) +
+  geom_histogram(alpha=0.5, position = 'identity', bins=12) +
+  scale_fill_discrete(name = "Album Name", labels = c("The Dark Side Of The Moon", "Ummagumma")) +
+  labs(
+    title = "Key counts for Ummagumma and The Dark Side Of The Moon",
+    x = "Key",
+    y = "Count"
+  )
+  # + scale_x_discrete(labels=c("0" = "Dose 0.5", 
+  #                           "1" = "",
+  #                           "2" = "",
+  #                           "3" = "",
+  #                           "4" = "",
+  #                           "5" = "",
+  #                           "6" = "",
+  #                           "7" = "",
+  #                           "8" = "",
+  #                           "9" = "",
+  #                           "10" = "",
+  #                           "11" = "",))     # Add chord names
+  
+```
+
+***
+The graph shows 1969's *Ummagumma's* songs having spikes in key count for key 7 and 9, whereas *The Dark Side Of The Moon's* keys (from here on referred to as *Dark Side*) are spread pretty evenly. This is difference likely caused in part by the fact that *Ummagumma* is very experimental. Some songs are barely songs. This is reflected in Spotify's confidence scores for its key estimation of *Ummagumma*, which are far lower than those of *Dark Side*. 
+<br>
+P.S. I planned to plot aforementioned confidence scores along side this histogram, but I could not get it to work properly yet. Will add it soon, hopefully.
+
+
+
 <!-- Week 8: Structure analysis, self-similarity matrices -->
 ### **Self-similarity** in *Several Species Of Small Furry Animals Gathered Together In A Cave And Grooving With A Pict*
 <!-- TODO fix figure sizes and alignments -->
@@ -165,7 +217,6 @@ floyd <- ggplot() +
   scale_x_discrete() +
   theme(
     axis.text.x = element_text(angle=30, hjust="1")
-    
   ) +
   labs(
     title = "Valence and Energy for Songs on Studio Albums by Pink Floyd",
