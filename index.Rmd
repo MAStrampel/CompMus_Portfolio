@@ -69,7 +69,8 @@ ggplot(ummadark, aes(x=key, fill=track.album.name)) +
 
 ***
 The graph shows 1969's *Ummagumma's* songs having spikes in key count for key 7 and 9, whereas *The Dark Side Of The Moon's* keys (from here on referred to as *Dark Side*) are spread pretty evenly. This is difference likely caused in part by the fact that *Ummagumma* is very experimental. Some songs are barely songs. This is reflected in Spotify's confidence scores for its key estimation of *Ummagumma*, which are far lower than those of *Dark Side*. 
-<br>
+
+
 P.S. I planned to plot aforementioned confidence scores along side this histogram, but I could not get it to work properly yet. Will add it soon, hopefully.
 
 
