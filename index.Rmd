@@ -22,8 +22,41 @@ library(cowplot)
 
 ## 12066664 Computational Musicology Portfolio
 
+<!-- Week 10: Tempograms -->
+### **NEW:** Comparing **tempo** in typical and atypical Pink Floyd tracks.
+```{r, cache=TRUE, figures-side, fig.show="hold", out.width="50%", fig.align="top", echo=FALSE}
+# Set the memory limit to allow tempograms:
+# memory.limit(size = 35000) 
+
+species <- get_tidy_audio_analysis("6mKubLaKaqlt0zcuzS6WhH")
+breathe <- get_tidy_audio_analysis("3zJRvtQkHQRTNEXSY8jQPR")
+
+species %>% # Non-cyclic tempogram
+  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)", title="Several Species (...)") +
+  theme_classic()
+
+breathe %>% # Non-cyclic tempogram
+  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)", title="Breathe (In The Air)") +
+  theme_classic()
+```
+
+***
+Comparing the tempograms for *Several Species* and *Breathe*, which are very atypical and typical Pink Floyd songs respectively, brings light to several interesting things. Firstly, the tempo for *Several Species* is relatively constant and pronounced at around **85 BPM** from about **25 to 140 seconds**. This is due to this section containing the closest thing to percussion this song has, namely the rhythmic scurrying and tapping of several species of small furry animals. The rest of the song does not produce nearly as pronounced a tempo. Compare this to *Breathe* which does have a more pronounced tempo of about **125 BPM** throughout the song. 
+
+Secondly, although both songs have at least a section with a steady BPM, *Several Species* also has a lot of high intensity spots at seemingly random points away from the main tempo line. This is especially pronounced **outside of the 25 to 140 second** range. This contrasts heavily with *Breathe* which comparatively has very little noise, with the bridge at **120 seconds** being by far the noisiest.
+
+
+
 <!-- Week 9: Key and chord estimation -->
-### **NEW:** Comparing **keys** used in a selection Pink Floyd's **experimental and popular albums** using standard pitch class notation.
+### Comparing **keys** used in a selection Pink Floyd's **experimental and popular albums** using standard pitch class notation.
 ```{r, echo=FALSE}
 floyd_keys <-
   get_playlist_audio_features(
@@ -78,7 +111,7 @@ P.S. I planned to plot aforementioned confidence scores along side this histogra
 <!-- Week 8: Structure analysis, self-similarity matrices -->
 ### **Self-similarity** in *Several Species Of Small Furry Animals Gathered Together In A Cave And Grooving With A Pict*
 <!-- TODO fix figure sizes and alignments -->
-```{r, figures-side, fig.show="hold", out.width="50%", fig.align="top", echo=FALSE}
+```{r, fig.show="hold", out.width="50%", fig.align="top", echo=FALSE}
 sevspec <-
   get_tidy_audio_analysis("6mKubLaKaqlt0zcuzS6WhH") %>% # Change URI.
   compmus_align(bars, segments) %>%                     # Change `bars`
