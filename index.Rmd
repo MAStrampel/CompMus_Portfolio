@@ -18,12 +18,123 @@ library(compmus)
 library(plotly)
 library(lubridate)
 library(cowplot)
+library(kknn)
+library(C50)
+library(tidymodels)
+library(ggdendro)
+library(heatmaply)
 ```
 
 ## 12066664 Computational Musicology Portfolio
 
+<!-- Week 11: Classification and Clustering -->
+### **NEW:** **Classifying** songs from experimental and typical albums: a closer look at Ummagumma and The Dark Side Of The Moon.
+```{r, echo=FALSE}
+# umma <- get_playlist_audio_features("spotify", "24ZUwHygqLUwETbG2l0HXs")
+# dark <- get_playlist_audio_features("spotify", "67bpTVQpOrtMOwbH6IIhtf")
+# ummadark <-
+#   bind_rows(
+#     umma %>% mutate(playlist = "Ummagumma") %>% slice_head(n = 20),
+#     dark %>% mutate(playlist = "The Dark Side Of The Moon") %>% slice_head(n = 20)
+#   )
+# rm(umma)
+# rm(dark)
+# 
+# indie_features <-
+#   ummadark %>%  # For your portfolio, change this to the name of your corpus.
+#   add_audio_analysis() %>%
+#   mutate(
+#     playlist = factor(playlist),
+#     segments = map2(segments, key, compmus_c_transpose),
+#     pitches =
+#       map(
+#         segments,
+#         compmus_summarise, pitches,
+#         method = "mean", norm = "manhattan"
+#       ),
+#     timbre =
+#       map(
+#         segments,
+#         compmus_summarise, timbre,
+#         method = "mean",
+#       )
+#   ) %>%
+#   mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+#   mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+#   unnest(cols = c(pitches, timbre))
+# 
+# indie_recipe <-
+#   recipe(
+#     playlist ~
+#       danceability +
+#       tempo +
+#       `F#|Gb` + A + B +
+#       c02 + c05 + c07 + c08 + c09,
+#     data = indie_features,          # Use the same name as the previous block.
+#   ) %>%
+#   step_center(all_predictors()) %>%
+#   step_scale(all_predictors())      # Converts to z-scores.
+#   # step_range(all_predictors())    # Sets range to [0, 1].
+# 
+# indie_cv <- indie_features %>% vfold_cv(10)
+# 
+# forest_model <-
+#   rand_forest() %>%
+#   set_mode("classification") %>%
+#   set_engine("ranger", importance = "impurity")
+# indie_forest <-
+#   workflow() %>%
+#   add_recipe(indie_recipe) %>%
+#   add_model(forest_model) %>%
+#   fit_resamples(
+#     indie_cv,
+#     control = control_resamples(save_pred = TRUE)
+#   )
+# 
+# indie_forest %>% get_pr()
+# 
+# workflow() %>%
+#   add_recipe(indie_recipe) %>% 
+#   add_model(forest_model) %>%
+#   fit(indie_features) %>%
+#   pluck("fit", "fit", "fit") %>%
+#   ranger::importance() %>%
+#   enframe() %>%
+#   mutate(name = fct_reorder(name, value)) %>%
+#   ggplot(aes(name, value)) +
+#   geom_col() +
+#   coord_flip() +
+#   theme_minimal() +
+#   labs(x = "Feature", y = "Importance")
+# 
+# a <- indie_forest %>% get_conf_mat() 
+# print(a)
+# indie_forest %>% get_conf_mat() %>% autoplot(type = "mosaic")
+
+```
+![](images/both.png)
+
+***
+To further analyze the difference between experimental albums such as *Ummagumma* and more traditional albums such as *Dark Side*, a classifier was trained on those very albums. The first iteration used all track-level features spotify has to offer: **danceability** and the like, **cepstrum coefficients** and **key** information. A **random forest classifier** was used as it got similar, yet slightly better results than kNN. To ensure accurate representation of the data and to prevent selection bias, a **10-fold cross validation** was maintained. The table below shows that the model has an easier time with *Ummagumma* than with *Dark Side*. This is likely due to *Ummagumma's* songs being a lot more unique. This is what makes it an experimental album, after all. On top of that *Ummagumma* contains 16 songs, compared to *Dark Side's* 10, which means the model has more data points to learn the characteristics of an *Ummagumma* song from.
+
+| Class | Precision | Recall |
+|:------:|:-----|:------|
+| The Dark Side Of The Moon | 0.778 | 0.700 |
+| Ummagumma | 0.824 | 0.875 |
+###### Table 1. Performance of random forest model using all features.
+
+In an effort to improve the performance of the model the **10 most important features** were kept, while the rest were discarded. These features are shown in the left-most graph on this page. All other model parameters were kept the same. The table below clearly shows the **tradeoff** that is inherent to the precision and recall measures. As one increases recall, precision decreases and vice versa. This means the overall performance of the model has barely improved, if at all. The table below shows the performance of the revised model, which is graphically represented in the right-most graph on this page.
+
+| Class | Precision | Recall |
+|:------:|:-----|:------|
+| The Dark Side Of The Moon | 0.727 | 0.800 |
+| Ummagumma | 0.867 | 0.813 |
+###### Table 2. Performance of random forest model using 10 most imporant features.
+
+
+
 <!-- Week 10: Tempograms -->
-### **NEW:** Comparing **tempo** in typical and atypical Pink Floyd tracks.
+### Comparing **tempo** in typical and atypical Pink Floyd tracks.
 ```{r, cache=TRUE, figures-side, fig.show="hold", out.width="50%", fig.align="top", echo=FALSE}
 # Set the memory limit to allow tempograms:
 # memory.limit(size = 35000) 
@@ -63,7 +174,7 @@ floyd_keys <-
     "Pink Floyd all albums (old to new)",
     "1C9XFTKsUqn6U3ZsF8KL4A"
   ) %>%
-  slice(1:78) %>%  # Limit to 30 tracks
+  slice(31:78) %>%  # Limit to 30 tracks
   add_audio_analysis()
 
 umma <- filter(floyd_keys, track.album.name == "Ummagumma (2011 Remastered Version)") 
