@@ -1,0 +1,13 @@
+.storyboard-nav .sbframelist ul li {
+  padding-right: 42px;
+}
+
+.storyboard-nav .sbframelist ul li.active {
+  background-color: #abd3e3;
+  background-image: url('images/wish.png');
+  background-repeat: no-repeat;
+  background-position: 100%;
+  background-size: 20%;
+  background-blend-mode: soft-light;
+  padding-right: 42px;
+}
