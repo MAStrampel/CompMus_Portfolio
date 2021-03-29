@@ -530,7 +530,7 @@ Next I studied the difference in **intensity of the timbre *coefficients** betwe
 ### A closer look at **Tempo**{data-commentary-width=512}
 ```{r, cache=TRUE, figures-side, fig.show="hold", out.width="50%", fig.align="top", echo=FALSE}
 # Set the memory limit to allow tempograms:
-# memory.limit(size = 35000)
+memory.limit(size = 35000)
 
 species <- get_tidy_audio_analysis("6mKubLaKaqlt0zcuzS6WhH")
 breathe <- get_tidy_audio_analysis("3zJRvtQkHQRTNEXSY8jQPR")
